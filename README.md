@@ -30,7 +30,7 @@ A dashboard that can be used in meetings to allow participants to indicate emoti
     * changes the color of the participant, adds the chat text, or indicates that a hand has been raised.
     
 ## Installation
-* Make a copy of the Google Sheets template
+* Make a copy of the [Google Sheets template](https://docs.google.com/spreadsheets/d/1LkzJapJFeiI61kn92gD0otYyFZsRfUg0wAGea4jzBB8/edit?usp=sharing)
 * Open the script editor in google sheets (Tools -> Script editor)
 * Update the user email in "code.gs"
 * Update the "pusher" variable in "main.html" with the appropriate information from your pusher account
