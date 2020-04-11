@@ -13,6 +13,8 @@ A dashboard that can be used in meetings to allow participants to indicate emoti
 * Low bandwidth
     * While this needs to be paired with an audio webconference, this tool uses very little bandwidth. All interactions are low payload AJAX calls that lead to low bandwidth WebSocket events.
     
+Note that the roadmap with future features is on the wiki.
+    
 ## technology
 * Google Sheet as the data storage device (this is what makes it so easy to share with others)
 * Google Apps Script to provide both the server javascript code and the client html and javascript
