@@ -1,5 +1,5 @@
 # synchronous-dashboard
-![Screenshot of dashboard](Screenshot 2020-04-11 at 2.56.31 PM.png)
+![Screenshot of dashboard](Screenshot%202020-04-11%20at%202.56.31%20PM.png)
 A dashboard that can be used in meetings to allow participants to indicate emotions, chat, and raise hands without using video. It's google apps script based and will only work in a full G-suite application. [See my blog post about it here](https://arundquist.wordpress.com/2020/04/08/synchronous-meeting-dashboard/)
 
 [A Loom video showing it in action](https://www.loom.com/share/a57af2b07dfc4d65a957762c760af158)
