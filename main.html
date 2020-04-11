@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://js.pusher.com/5.1/pusher.min.js"></script>
+  <script>
+
+    // Enable pusher logging - don't include this in production
+//    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('PUSHER KEY GOES HERE', {
+      cluster: 'PUSHER CLUSTER GOES HERE',
+      forceTLS: true
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('reaction', function(data) {
+      //alert(JSON.stringify(data));
+//      document.getElementById(data["id"]).innerHTML=data["button"];
+      var el = document.getElementById(data["id"]);
+      if (data["color"]=="Black") {
+        el.style.color="Black";
+        el.style.backgroundColor = "White";
+        } else {
+          el.style.color="White";
+          el.style.backgroundColor=data["color"];
+          };
+//      document.getElementById(data["id"]).style.color=data["color"];
+      });
+    channel.bind('chat', function(data) {
+      document.getElementById("chat").innerHTML=data["text"]+"<br/>"+document.getElementById("chat").innerHTML;
+    });
+    channel.bind('remove', function(data) {
+      removeHandClient(data["queuename"], data["hand"]);
+    });
+    channel.bind('transfer', function(data) {
+      transferClient(data["queuename"], data["hand"]);
+    });
+    channel.bind('raise', function(data) {
+      raiseHandClient(data["queuename"], data["hand"]);
+    });
+    channel.bind('present', function(data) {
+      document.getElementById(data["index"]).style.color="Black";
+    });
+  </script>
+    <script>
+      function update(button, color) {
+        google.script.run.broadcast(<?= index ?>, button, color);
+        };
+      
+      function sendChat() {
+        var text = document.getElementById("textarea").value;
+        document.getElementById("textarea").value = "";
+        //var d = new Date();
+        google.script.run.addChat(<?= index ?>, "<?= name ?>: "+text);
+        };
+        
+//      var names = {"1":"Andy Rundquist", "0":"Caroline Hilk"};
+//      var names = ["Caroline Hilk", "Andy Rundquist"];
+      var names = (<?!= JSON.stringify(names) ?>);
+      var usertype = "<?= userType ?>";
+      var curIndex = <?= index ?>;
+      var newqueue = <?!= JSON.stringify(newqueue) ?>;
+      var followupqueue = <?!= JSON.stringify(followupqueue) ?>;
+      function makeQueue(queue, queuename, names, usertype, curIndex) {
+        var html = `<ul class="list-group">`;
+        queue.forEach((r,i)=>html+=formatLi(queuename, r, names, usertype,curIndex));
+        html +=`</ul>`;
+        return html;
+        }
+        
+      function formatLi(queue, hand, names, usertype,curIndex) {
+        var date=new Date(hand.d).toISOString().match(/(\d{2}:){2}\d{2}/)[0];
+        if (usertype == "instructor") {
+          return `<li class="list-group-item"><button type="button" onClick="removeHand('${queue}',${hand.index},${hand.d},1)">${names[hand.index]} ${date}
+          <button type="button" onClick="removeHand('${queue}',${hand.index},${hand.d},0)">unraise</button></button><button onClick="transfer('${queue}',${hand.index}, ${hand.d})">transfer</button></li>`;
+          } else if(hand.index==curIndex) {
+            return `<li class="list-group-item">${names[hand.index]} ${date}<button type="button" onClick="removeHand('${queue}',${hand.index},${hand.d},0)">unraise</button>
+                        <button onClick="transfer('${queue}',${hand.index}, ${hand.d})">transfer</button></li>`;
+            } else {
+              return `<li class="list-group-item">${names[hand.index]} ${date}</li>`;
+              };
+        }
+        
+      function drawQueue(queuename) {
+        document.getElementById(queuename+"div").innerHTML=makeQueue(window[queuename], queuename, names, usertype,curIndex);
+        }
+        
+      function drawBoth() {
+        drawQueue("newqueue");
+        drawQueue("followupqueue");
+        }
+        
+      function raiseHand(queuename) {
+        google.script.run.pusherRaise(queuename, curIndex);
+        }
+      
+      function raiseHandClient(queuename,hand) {
+        window[queuename].push(hand);
+        window[queuename].sort((a, b) => a.d - b.d);
+        drawQueue(queuename);
+        }
+      
+      function removeHand(queuename, index, d, byinstructor) {
+//        alert("made it here");
+//        var hande = JSON.parse(hand);
+        google.script.run.pusherRemove(queuename, {"index":index, "d":d}, byinstructor);
+        }
+        
+      function removeHandClient(queuename, hand) {
+        // here you need to find the index in the appropriate queue
+//        alert("made it");
+        var index = window[queuename].findIndex(h => h.d == hand.d);
+//        var index = 0;
+        window[queuename].splice(index, 1);
+        drawQueue(queuename);
+        }
+        
+      function transfer(queuename, index, d) {
+        google.script.run.pusherTransfer(queuename, {"index":index, "d":d});
+        }
+      
+      function transferClient(queuename, hand) {
+        if (queuename == "newqueue") {
+          var other = "followupqueue";
+          } else {
+            var other = "newqueue";
+            };
+        // get proper index
+        var index = window[queuename].findIndex(h => h.d == hand.d);
+        var replace = window[queuename].splice(index,1);
+        window[other].push(replace[0]);
+        window[other].sort((a, b) => a.d - b.d);
+        drawQueue(queuename);
+        drawQueue(other);
+        }
+        
+    
+      
+    </script>
+    
+  </head>
+  <body onload="drawBoth()">
+  <div class="container.fluid">
+  <h1>Welcome <?= name ?></h1>
+    <?!= buttons ?>
+    <div class="row">
+    <div class="col">
+      <?!= roster ?>
+    </div>
+    <div class="col">
+      <textarea id="textarea"></textarea><button id="chatsend" onClick="sendChat()">Send</button>
+    <div id = "chat"><?!= chats ?></div>
+    </div>
+   <div class="col">
+    <div><button type="button" onClick="raiseHand('newqueue')">Raise hand for new topic</button></div>
+    <div id = "newqueuediv"></div>
+    </div>
+    <div class="col">
+    <div><button type="button" onClick="raiseHand('followupqueue')">Raise hand for follow up</button></div>
+    <div id = "followupqueuediv"></div>
+    </div>
+    </div>
+     
+  </div>
+  <script>
+  var input = document.getElementById("textarea");
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keypress", function(event) {
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("chatsend").click();
+      }
+    });
+  </script>
+  </body>
+</html>
+
+
