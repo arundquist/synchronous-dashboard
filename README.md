@@ -39,3 +39,22 @@ A dashboard that can be used in meetings to allow participants to indicate emoti
     * the first time this will ask you to review the permissions
 * Copy the url under the "deploy as web app" window and share with participants
 * Add participants email and names to the "roster" tab in the spreadsheet
+
+## Make your own
+Create a google sheet with the following tabs:
+* roster: Column A is emails, Column B is names. This one has a header row
+* emotions: Column A is emotion, Column B is color. No header row
+* chats: Column A will hold all the chats
+* present: Column A will hold the ids of roster participants that have gone to the url. No header row
+* lowered: Column A is roster id, B is raised timestamp, C is lowered timestamp, D is 0 for student lowered, 1 for instructor lowered. No header row
+* raised hands: Column A is queuename, B is roster id, C is timestamp. No header row
+* transfers: Column A is roster id, B is raised timestamp, C is transferred timestamp, D is new queuename. No header row
+
+Then create a bound script (Tools -> script editor) and create these files:
+* code.gs: paste in the code in this repository called code.js (I call it .js here for good formatting)
+* pusher.gs: paste in the code called pusher.gs
+* main.html: paste in the code called main.html
+
+Update your pusher info and your user email in the places with all caps.
+
+Then Publish->Deploy as web app. Update the roster tab with participants for your meeting.
