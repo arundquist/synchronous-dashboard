@@ -3,7 +3,7 @@ A dashboard that can be used in meetings to allow participants to indicate emoti
 
 ## features
 * Emotions
-    * Buttons for participants like "Excited" or "Agree" or "Confused" will light up that participants name in the displayed roster with a particular color.
+    * Buttons for participants like "Excited" or "Agree" or "Confused" will light up that participant's name in the displayed roster with a particular color.
 * Chat
     * A simple chat interface that is persistent. If someone has to reload or joins late they will see all the chat history
 * Raise hands
