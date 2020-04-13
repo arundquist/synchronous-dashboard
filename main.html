@@ -117,7 +117,7 @@
         var text = document.getElementById("textarea"+id).value;
         document.getElementById("textarea"+id).value = "";
         //var d = new Date();
-        google.script.run.addChat(id, <?= index ?>, "<?= name ?>: "+text);
+        google.script.run.addChat(id, <?= index ?>, "<b><?= name ?></b>: "+text);
         };
         
 //      var names = {"1":"Andy Rundquist", "0":"Caroline Hilk"};
