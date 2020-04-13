@@ -1,7 +1,3 @@
-function test() {
-  Logger.log("hi there");
-  }
-
 function doGet(e) {
   var proxy = e.parameter.email;
   if (proxy) {
@@ -9,7 +5,7 @@ function doGet(e) {
     } else {
       var user = Session.getActiveUser().getEmail();
       };
-  if (user == "YOUR EMAIL GOES HERE") {
+  if (user == "YOUR EMAIL HERE") {
     var userType = "instructor";
     } else {
       var userType = "student";
@@ -54,7 +50,7 @@ function doGet(e) {
   t.names = data.map(r => r[1]);
   t.name = data[index][1];
   t.userType = userType;
-  t.roster = rosterList(data, presentdata);
+  t.roster = rosterList(data, presentdata, userType);
   t.chats = previouschats;
   t.newqueue = newqueue;
   t.buttons = getButtons();
@@ -111,11 +107,13 @@ function broadcast(id, button,color) {
   sendToPusher("reaction", {"id":id, "button":b, "color":color});
   }
   
-function addChat(id, text) {
-  sendToPusher("chat", {"id":id, "text":text});
-  var user = Session.getActiveUser().getEmail();
-  var sheet = SpreadsheetApp.getActive().getSheetByName("chats");
-  sheet.appendRow([text]);
+function addChat(chatid, id, text) {
+  sendToPusher("chat", {"id":id, "text":text, "chatid":chatid});
+  if (chatid="") {
+    var user = Session.getActiveUser().getEmail();
+    var sheet = SpreadsheetApp.getActive().getSheetByName("chats");
+    sheet.appendRow([text]);
+    };
   }
   
 function pusherRaise(queuename, index) {
@@ -154,15 +152,40 @@ function pusherTransfer(queuename, hand) {
   sheet.appendRow([hand.index, hand.d,d, fix[queuename]]);
   }
   
-function rosterList(data, presentdata) {
-  var html = "";
+function rosterList(data, presentdata, userType) {
+  var html = "<div id = 'rosterlist'>";
   data.map((r,i) => {
-    html+=`<span id="${i}"`;
+    html+=`<span id="${i}" onClick="launchChat(${i})"`;
     if (!(presentdata.includes(i))) {
       html+=` style="color: Gray"`;
       };
     html+=`>${r[1]}</span> `;
     return html;
     });
+  if (userType=="instructor") {
+      html += `<button type="button" onClick="google.script.run.clearEmotions()">Clear</button>
+               <button type="button" onClick="thinkPairShare()">Think-pair-share</button>`;
+      };
+  html += "</div>";
   return html;
+  }
+  
+function clearEmotions() {
+  sendToPusher("clearEmotions",{});
+  }
+  
+function launchChatServer(id, curIndex) {
+  var rndid=Math.floor(Math.random() * 100000);
+  sendToPusher("launchChat", {"chatters": [`${id}`, curIndex], "chatid":rndid});
+  }
+  
+function closeChat(id) {
+  sendToPusher("closeChat", {"chatid": id});
+  }
+  
+function thinkPairShareServer(sets) {
+  sets.forEach(s => {
+    var rndid=Math.floor(Math.random()*100000);
+    sendToPusher("launchChat", {"chatters":s.map(n=>`${n}`), "chatid":rndid});
+    });
   }
