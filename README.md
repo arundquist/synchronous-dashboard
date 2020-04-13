@@ -4,6 +4,11 @@ A dashboard that can be used in meetings to allow participants to indicate emoti
 
 [A Loom video showing it in action](https://www.loom.com/share/a57af2b07dfc4d65a957762c760af158)
 
+[Loom vid with new features](https://www.loom.com/share/b94205e80b31461d86e4535101fc2ff0)
+* Instructors can now clear all emotions
+* Individual participants can have 1-on-1 chats with other participants
+* Instructor can launch "think-pair-share" which randomly pairs participants up for 1-on-1 chats
+
 ## features
 * Emotions
     * Buttons for participants like "Excited" or "Agree" or "Confused" will light up that participant's name in the displayed roster with a particular color.
