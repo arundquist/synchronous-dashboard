@@ -5,10 +5,32 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <script src="https://js.pusher.com/5.1/pusher.min.js"></script>
+    
+    <style>
+       div.scr { 
+                  margin:5px; 
+                  padding:5px; 
+                  background-color: #F1F1F1; 
+                  width: 500px; 
+                  height: 500px; 
+                  overflow: auto; 
+                  text-align:justify; 
+              } 
+       div.subscr { 
+                  margin:5px; 
+                  padding:5px; 
+                  background-color: #F1F1F1; 
+                  width: 300px; 
+                  height: 200px; 
+                  overflow: auto; 
+                  text-align:justify; 
+              } 
+    </style>
+    
   <script>
 
     // Enable pusher logging - don't include this in production
-//    Pusher.logToConsole = true;
+    Pusher.logToConsole = true;
 
     var pusher = new Pusher('PUSHER KEY GOES HERE', {
       cluster: 'PUSHER CLUSTER GOES HERE',
@@ -30,7 +52,8 @@
 //      document.getElementById(data["id"]).style.color=data["color"];
       });
     channel.bind('chat', function(data) {
-      document.getElementById("chat").innerHTML=data["text"]+"<br/>"+document.getElementById("chat").innerHTML;
+      
+      document.getElementById("chat"+data["chatid"]).innerHTML=data["text"]+"<br/>"+document.getElementById("chat"+data["chatid"]).innerHTML;
     });
     channel.bind('remove', function(data) {
       removeHandClient(data["queuename"], data["hand"]);
@@ -44,17 +67,57 @@
     channel.bind('present', function(data) {
       document.getElementById(data["index"]).style.color="Black";
     });
+    channel.bind('clearEmotions', function(data) {
+      var spans = document.getElementById('rosterlist').getElementsByTagName('span');
+      for (var i =0; i<spans.length; i++) {
+        var s = spans[i];
+        if (!(s.style.color == "gray")) {
+          s.style.color="Black";
+          s.style.backgroundColor="White";
+          };
+        };
+    });
+    channel.bind('launchChat', function(data) {
+      if (data["chatters"].includes(curIndex)) {
+        var namestext = data["chatters"].map(i => names[i]).join(", ");
+        var chathtml = `Chat with ${namestext} <button type="button" onClick="google.script.run.closeChat(${data["chatid"]})">Close</button><br/>
+            <textarea id="textarea${data['chatid']}" class = "taclass${data['chatid']}"></textarea><button id="chatsend${data["chatid"]}" onClick="sendChat(${data["chatid"]})">Send</button>
+            <div id = "chat${data['chatid']}" class="subscr"></div>
+          </div>`;
+        var newdiv = document.createElement("div");
+        newdiv.innerHTML = chathtml;
+        newdiv.className="col";
+        newdiv.id=`div${data['chatid']}`;
+        document.getElementById("chatrow").appendChild(newdiv);
+          var input = document.getElementById("textarea"+data["chatid"]);
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keypress", function(event) {
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("chatsend"+data["chatid"]).click();
+      }
+    });
+        };
+    });
+    channel.bind('closeChat', function(data) {
+      var element = document.getElementById("div"+data["chatid"]);
+      element.parentNode.removeChild(element);
+    });
   </script>
     <script>
       function update(button, color) {
         google.script.run.broadcast(<?= index ?>, button, color);
         };
       
-      function sendChat() {
-        var text = document.getElementById("textarea").value;
-        document.getElementById("textarea").value = "";
+      function sendChat(id="") {
+        var text = document.getElementById("textarea"+id).value;
+        document.getElementById("textarea"+id).value = "";
         //var d = new Date();
-        google.script.run.addChat(<?= index ?>, "<?= name ?>: "+text);
+        google.script.run.addChat(id, <?= index ?>, "<?= name ?>: "+text);
         };
         
 //      var names = {"1":"Andy Rundquist", "0":"Caroline Hilk"};
@@ -137,7 +200,33 @@
         drawQueue(other);
         }
         
-    
+      function launchChat(id) {
+//        alert(`${id} was clicked`);
+        google.script.run.launchChatServer(id, curIndex);
+        }
+      
+      function thinkPairShare() {
+        var spans = document.getElementById('rosterlist').getElementsByTagName('span');
+        var present = [];
+        for (var i =0; i<spans.length; i++) {
+          var s = spans[i];
+          if (!(s.style.color == "gray") && i != curIndex) {
+            present.push(i);
+            };
+          };
+        let shuffled = present
+                 .map((a) => ({sort: Math.random(), value: a}))
+                 .sort((a, b) => a.sort - b.sort)
+                 .map((a) => a.value);
+        var sets = [];
+        while (shuffled.length > 3) {
+          var tmp = shuffled.splice(0, 2);
+          sets.push(tmp);
+          };
+        sets.push(shuffled);
+        google.script.run.thinkPairShareServer(sets);
+        }
+          
       
     </script>
     
@@ -146,13 +235,15 @@
   <div class="container.fluid">
   <h1>Welcome <?= name ?></h1>
     <?!= buttons ?>
+    <div class = "row" id="chatrow">
+    </div>
     <div class="row">
     <div class="col">
       <?!= roster ?>
     </div>
     <div class="col">
-      <textarea id="textarea"></textarea><button id="chatsend" onClick="sendChat()">Send</button>
-    <div id = "chat"><?!= chats ?></div>
+      <textarea id="textarea" class = "taclass"></textarea><button id="chatsend" onClick="sendChat()">Send</button>
+    <div id = "chat" class="scr"><?!= chats ?></div>
     </div>
    <div class="col">
     <div><button type="button" onClick="raiseHand('newqueue')">Raise hand for new topic</button></div>
@@ -166,6 +257,8 @@
      
   </div>
   <script>
+
+  
   var input = document.getElementById("textarea");
 
     // Execute a function when the user releases a key on the keyboard
