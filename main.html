@@ -27,13 +27,24 @@
               } 
     </style>
     
+    <style>
+			#container { position: relative; }
+			#imageView { border: 1px solid #000; }
+            
+            .responsive {
+                width: 150px;
+                height: auto;
+                }
+            
+		</style>
+    
   <script>
 
     // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
+//    Pusher.logToConsole = true;
 
-    var pusher = new Pusher('PUSHER KEY GOES HERE', {
-      cluster: 'PUSHER CLUSTER GOES HERE',
+    var pusher = new Pusher('PUSHER KEY HERE', {
+      cluster: 'PUSHER CLUSTER HERE',
       forceTLS: true
     });
 
@@ -81,7 +92,7 @@
       if (data["chatters"].includes(curIndex)) {
         var namestext = data["chatters"].map(i => names[i]).join(", ");
         var chathtml = `Chat with ${namestext} <button type="button" onClick="google.script.run.closeChat(${data["chatid"]})">Close</button><br/>
-            <textarea id="textarea${data['chatid']}" class = "taclass${data['chatid']}"></textarea><button id="chatsend${data["chatid"]}" onClick="sendChat(${data["chatid"]})">Send</button>
+            <textarea id="textarea${data['chatid']}" class = "taclass${data['chatid']}" rows="2" cols="40"></textarea><button id="chatsend${data["chatid"]}" onClick="sendChat(${data["chatid"]})">Send</button>
             <div id = "chat${data['chatid']}" class="subscr"></div>
           </div>`;
         var newdiv = document.createElement("div");
@@ -227,6 +238,7 @@
         google.script.run.thinkPairShareServer(sets);
         }
           
+        
       
     </script>
     
@@ -234,28 +246,54 @@
   <body onload="drawBoth()">
   <div class="container.fluid">
   <h1>Welcome <?= name ?></h1>
-    <?!= buttons ?>
+    <div><?!= buttons ?></div>
+    <div> <?!= roster ?></div>
     <div class = "row" id="chatrow">
     </div>
     <div class="row">
-    <div class="col">
-      <?!= roster ?>
-    </div>
-    <div class="col">
-      <textarea id="textarea" class = "taclass"></textarea><button id="chatsend" onClick="sendChat()">Send</button>
-    <div id = "chat" class="scr"><?!= chats ?></div>
-    </div>
-   <div class="col">
-    <div><button type="button" onClick="raiseHand('newqueue')">Raise hand for new topic</button></div>
-    <div id = "newqueuediv"></div>
-    </div>
-    <div class="col">
-    <div><button type="button" onClick="raiseHand('followupqueue')">Raise hand for follow up</button></div>
-    <div id = "followupqueuediv"></div>
-    </div>
-    </div>
+
+      <div class="col">
+          <textarea id="textarea" class = "taclass" rows="3" cols="40"></textarea><button id="chatsend" onClick="sendChat()">Send</button>
+        <div id = "chat" class="scr"><?!= chats ?></div>
+      </div>
+      
+      <div class="col">
      
-  </div>
+       <canvas id="canvas" width="500" height="400" style="border: solid 3px red; touch-action: none;"></canvas>
+            <div id="dropbox">
+  <? if(userType == 'instructor') {?>
+  <form class="my-form">
+    <div class="form_line">
+      
+      <div class="form_controls">
+        <div class="upload_button_holder">
+          <input id="file" type="file" onchange="saveFile(this)" />
+        </div>
+      </div>
+    </div>
+  </form>
+  <? } ?>
+ 
+</div>
+<!-- used to be where the images div was -->
+     </div>
+     
+      <div class="col">
+      
+     
+        <div class="row"><button type="button" onClick="raiseHand('newqueue')">Raise hand for new topic</button></div>
+        <div id = "newqueuediv"  class="row"></div>
+   
+        <div class="row"><button type="button" onClick="raiseHand('followupqueue')">Raise hand for follow up</button></div>
+        <div id = "followupqueuediv" class="row"></div>
+      </div>
+    </div>
+    </div>
+    
+    <!-- <img src="https://drive.google.com/uc?id=1a7Oj_mGCWzF33ZCW_SJEbcOx3HzT9wTR&export=download" /> -->
+    <div id="tryimage"></div>
+    <div id = "divForImages"></div>
+     
   <script>
 
   
@@ -271,6 +309,529 @@
         document.getElementById("chatsend").click();
       }
     });
+    
+//   var canvas, context, tool;
+//  var pts=[];
+//
+//  function init () {
+//    // Find the canvas element.
+//    canvas = document.getElementById('imageView');
+//    if (!canvas) {
+//      alert('Error: I cannot find the canvas element!');
+//      return;
+//    }
+//
+//    if (!canvas.getContext) {
+//      alert('Error: no canvas.getContext!');
+//      return;
+//    }
+//
+//    // Get the 2D canvas context.
+//    context = canvas.getContext('2d');
+//    if (!context) {
+//      alert('Error: failed to getContext!');
+//      return;
+//    }
+//
+//    // Pencil tool instance.
+//    tool = new tool_pencil();
+//
+//    // Attach the mousedown, mousemove and mouseup event listeners.
+//    canvas.addEventListener('mousedown', ev_canvas, false);
+//    canvas.addEventListener('mousemove', ev_canvas, false);
+//    canvas.addEventListener('mouseup',   ev_canvas, false);
+//    
+//    canvas.addEventListener("touchstart", function (e) {
+//        mousePos = getTouchPos(canvas, e);
+//          var touch = e.touches[0];
+//          var mouseEvent = new MouseEvent("mousedown", {
+//            clientX: touch.clientX,
+//            clientY: touch.clientY
+//          });
+//          canvas.dispatchEvent(mouseEvent);
+//        }, {passive: false});
+//        canvas.addEventListener("touchend", function (e) {
+//            var mouseEvent = new MouseEvent("mouseup", {});
+//            canvas.dispatchEvent(mouseEvent);
+//          }, {passive: false});
+//        canvas.addEventListener("touchmove", function (e) {
+//          var touch = e.touches[0];
+//          var mouseEvent = new MouseEvent("mousemove", {
+//            clientX: touch.clientX,
+//            clientY: touch.clientY
+//          });
+//          canvas.dispatchEvent(mouseEvent);
+//        }, {passive: false});
+//        
+//        // Get the position of a touch relative to the canvas
+//        function getTouchPos(canvasDom, touchEvent) {
+//          var rect = canvasDom.getBoundingClientRect();
+//          return {
+//            x: touchEvent.touches[0].clientX - rect.left,
+//            y: touchEvent.touches[0].clientY - rect.top
+//          };
+//        }
+//  }
+//  
+//// Prevent scrolling when touching the canvas
+//      document.body.addEventListener("touchstart", function (e) {
+//        if (e.target == canvas) {
+//          e.preventDefault();
+//        }
+//      }, false);
+//      document.body.addEventListener("touchend", function (e) {
+//        if (e.target == canvas) {
+//          e.preventDefault();
+//        }
+//      }, false);
+//      document.body.addEventListener("touchmove", function (e) {
+//        if (e.target == canvas) {
+//          e.preventDefault();
+//        }
+//      }, false);
+//  
+//
+//  
+//  function paintPusher(pts) {
+//    var start=pts.shift();
+//    context.beginPath();
+//    context.moveTo(...start);
+//    pts.forEach(pt=>{
+//      context.lineTo(...pt);
+//      context.stroke();});
+//    }
+//  
+//  // This painting tool works like a drawing pencil which tracks the mouse 
+//  // movements.
+//  function tool_pencil () {
+//    var tool = this;
+//    this.started = false;
+//
+//    // This is called when you start holding down the mouse button.
+//    // This starts the pencil drawing.
+//    this.mousedown = function (ev) {
+//        context.beginPath();
+//        context.moveTo(ev._x, ev._y);
+//        pts.push([ev._x, ev._y]);
+//        tool.started = true;
+//    };
+//
+//    // This function is called every time you move the mouse. Obviously, it only 
+//    // draws if the tool.started state is set to true (when you are holding down 
+//    // the mouse button).
+//    this.mousemove = function (ev) {
+//      if (tool.started) {
+//        context.lineTo(ev._x, ev._y);
+//        context.stroke();
+//        pts.push([ev._x, ev._y]);
+//      }
+//    };
+//
+//    // This is called when you release the mouse button.
+//    this.mouseup = function (ev) {
+////      console.log(JSON.stringify(ev));
+//      if (tool.started) {
+//        if (ev.isTrusted) {
+//          tool.mousemove(ev);
+//          }
+//        tool.started = false;
+////        alert(JSON.stringify(pts));
+//        google.script.run.sendLine(pts, "<?= user ?>");
+//        pts=[];
+//      }
+//    };
+//  }
+//
+//  // The general-purpose event handler. This function just determines the mouse 
+//  // position relative to the canvas element.
+//  function ev_canvas (ev) {
+//    if (ev.layerX || ev.layerX == 0) { // Firefox
+//      ev._x = ev.layerX;
+//      ev._y = ev.layerY;
+//    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+//      ev._x = ev.offsetX;
+//      ev._y = ev.offsetY;
+//    }
+//
+//    // Call the event handler of the tool.
+//    var func = tool[ev.type];
+//    if (func) {
+//      func(ev);
+//    }
+//  }
+//
+//  init();
+
+channel.bind('newline', function(data) {
+    if (!(data.curuser == "<?= user ?>")) {
+    paintPusher(data.pts);
+    }
+  });
+  
+  var can = document.getElementById('canvas');
+  var canvas=can;
+  var ctx = can.getContext('2d');
+  var context=ctx;
+  var pts=[];
+
+//  var canwidth = can.width = 500;
+//  var canheight = can.height = 400;
+  var bbox = can.getBoundingClientRect();
+
+  function paintPusher(pts2) {
+    var start=pts2.shift();
+    console.log(start);
+    ctx.beginPath();
+    ctx.moveTo(...start);
+    pts2.forEach(pt=>{
+      ctx.lineTo(...pt);
+      ctx.stroke();});
+    }
+  var isDrawing = false;
+
+  // Mouse
+  can.addEventListener('mousedown', function(e) {
+    isDrawing = true;
+//    draw(e, 'red', 10);
+    setStart(e);
+    e.preventDefault();
+  }, false)
+  can.addEventListener('mousemove', function(e) {
+    if (isDrawing) drawSegment(e); //draw(e, 'lime', 3)
+    e.preventDefault();
+  }, false)
+  can.addEventListener('mouseup', function(e) {
+//    draw(e, 'blue', 10);
+    isDrawing = false;
+    endLine();
+    e.preventDefault();
+  }, false)
+
+  // Touch
+  can.addEventListener('touchstart', function(e) {
+    isDrawing = true;
+//    draw(e.changedTouches[0], 'red', 10);
+    setStart(e.changedTouches[0]);
+    e.preventDefault();
+  }, false)
+  can.addEventListener('touchmove', function(e) {
+    if (isDrawing) drawSegment(e.changedTouches[0]); //draw(e.changedTouches[0], 'lime', 3)
+    e.preventDefault();
+  }, false)
+  can.addEventListener('touchend', function(e) {
+//    draw(e.changedTouches[0], 'blue', 10);
+    isDrawing = false;
+    endLine();
+    e.preventDefault();
+  }, false)
+
+  
+
+  // Pointer
+  can.addEventListener('pointerdown', function(e) {
+    isDrawing = true;
+//    draw(e, 'red', 10);
+    setStart(e);
+    e.preventDefault(); e.stopPropagation(); return false;
+  }, false)
+  can.addEventListener('pointermove', function(e) {
+    if (isDrawing) drawSegment(e); //draw(e, 'lime', 3)
+  }, false)
+  can.addEventListener('pointerup', function(e) {
+//    draw(e, 'blue', 10);
+    endLine();
+    isDrawing = false;
+  }, false)
+
+  function draw(e, color, size) {
+    var bbox = can.getBoundingClientRect();
+    var mx = e.clientX - bbox.left;// * (can.width / bbox.width);
+    var my = e.clientY - bbox.top;// * (can.height / bbox.height);
+    ctx.fillStyle = color;
+    ctx.fillRect(mx, my, size, size);
+  }
+  
+  function setStart(e) {
+    bbox = can.getBoundingClientRect();
+    var mx = e.clientX - bbox.left;// * (can.width / bbox.width);
+    var my = e.clientY - bbox.top;// * (can.height / bbox.height);
+    ctx.beginPath();
+    ctx.moveTo(mx, my);
+    pts.push([mx,my]);
+    }
+  function drawSegment(e) {
+    
+    var mx = e.clientX - bbox.left;// * (can.width / bbox.width);
+    var my = e.clientY - bbox.top;// * (can.height / bbox.height);
+    ctx.lineTo(mx,my);
+    ctx.stroke();
+    pts.push([mx,my]);
+    };
+  function endLine() {
+    google.script.run.sendLine(pts, "<?= user ?>");
+    pts=[];
+    };
+
+
+  can.addEventListener('wheel', function(e) {
+    console.log('stopping wheel')
+    e.preventDefault();
+  }, false);
+  
+//  Pusher.logToConsole = true;
+
+
+    channel.bind('newline', function(data) {
+      if (!(data.curuser == "<?= user ?>")) {
+        paintPusher(data.pts);
+        }
+      });
+      
+    channel.bind('newImage', function(data) {
+      updateImage(data.url);
+      });
+    
+    channel.bind('clearCanvas', function(data) {
+      context.clearRect(0,0,canvas.width, canvas.height);
+      });
+      
+    function clearCanvas(){
+      google.script.run.clearCanvas();
+      }
+//}, false); }
+
+// vim:set spell spl=en fo=wan1croql tw=80 ts=2 sw=2 sts=2 sta et ai cin fenc=utf-8 ff=unix:
+
+        </script>
+        
+  <script>
+
+
+var imgs={"beforeimage": {"id":0}};
+var prevurl="beforeimage";
+var lastcanvas;
+var imgcount=0;
+var imgurls=[];
+var canvases=[];
+var currentid=-1;
+
+function updateImage(url) {
+  // need to swap out current image first
+  if (!((imgs.length==1) && (url == "beforeimage"))) {
+    saveImage();
+    console.log(JSON.stringify(imgs));
+//    console.log("url passed to updateImage is "+url);
+    if (imgs.hasOwnProperty(url)) {
+      // image exists, just need to swap it
+      swapin(imgs[url]["id"]);
+      currentid=imgs[url]["id"];
+      } else {
+        downloadImg(url);
+        imgs[url]={"id": imgcount};
+        currentid=-1;
+        }
+   }
+  }
+  
+function downloadImg(url) {
+  var img = new Image();
+//  img.crossOrigin = "Anonymous";
+//  img.setAttribute('crossorigin', 'anonymous'); // both of these make it so the images from google drive can't load
+  prevurl=url;
+   
+  //Set the src of this Image object.
+  
+  img.onload = function(){
+                // Update dimensions of the canvas with the dimensions of the image
+                canvas.width = this.width;
+                canvas.height = this.height;
+                
+                // Draw the image
+                console.log("trying to put in image");
+//                img.crossOrigin="Anonymous"; // trying to make it anonymous later doesn't seem to fix the tainted canvas problem
+//                document.getElementById("tryimage").appendChild(img);
+                console.log(img.crossOrigin);
+                context.drawImage(img, 0, 0);
+            };
+   img.src = url;
+//   console.log("here's the url it's trying to get: "+url);
+   }
+
+function cloneCanvas(oldCanvas) {
+
+    //create a new canvas
+    var newCanvas = document.createElement('canvas');
+    var context = newCanvas.getContext('2d');
+
+    //set dimensions
+    newCanvas.width = oldCanvas.width;
+    newCanvas.height = oldCanvas.height;
+
+    //apply the old canvas to the new one
+    context.drawImage(oldCanvas, 0, 0);
+
+    //return the new canvas
+    document.getElementById("tryimage").appendChild(newcanvas);
+//    return newCanvas;
+}
+
+function saveImage() {
+  if (currentid==-1) {
+    // create new img and canvas elements
+//    var newimg = document.createElement('img');
+    var div = document.getElementById('divForImages');
+//    newimg.crossOrigin="Anonymous";
+//    newimg.id="img"+imgcount;
+//    newimg.className="responsive";
+//    newimg.count=imgcount;
+//    newimg.prevurl=prevurl;
+    var newcanvas = document.createElement('canvas');
+//    if (<?= userType ?>=='instructor') {
+//      newimg.onclick=function() {
+//        google.script.run.sendImage(this.prevurl)}; // actually this should just trigger pusher
+//      };
+/*
+switching to google meant not being able to put "Anonymous" in the downloadImg function above.
+That meant that the canvas was "tainted". So the fix is not to use images but rather just the
+canvases below, hence adding the onclick function here. Next I'll need to see
+if they can be made smaller. Otherwise maybe just put them at the bottom of the screen.
+*/
+    if (<?= userType ?>=='instructor') {
+      newcanvas.onclick=function() {
+        google.script.run.sendImage(this.prevurl)}; // actually this should just trigger pusher
+      };
+//    var newcanvas = document.createElement('canvas');
+    newcanvas.id="canvas"+imgcount;
+    newcanvas.prevurl=prevurl;
+//    newcanvas.onclick=function() {
+//        google.script.run.sendImage(this.prevurl)};
+//    newcanvas.style.display="none";
+    div.appendChild(newcanvas);
+//    div.appendChild(newimg);
+    imgcount++;
+    } else {
+//      var newimg=document.getElementById('img'+currentid);
+      var newcanvas = document.getElementById('canvas'+currentid);
+      };
+   newcanvas.width = canvas.width;
+   newcanvas.height = canvas.height;
+   //  console.log(lastcanvas.width);
+   var ctx = newcanvas.getContext('2d');
+   ctx.drawImage(canvas,0,0);
+//   newimg.src = canvas.toDataURL("image/png");
+   }
+
+function addImage(url) {
+  //Create a new Image object.
+//  imgs[prevurl]=canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+  var div = document.getElementById('divForImages');
+  var newimg = document.createElement('img');
+  newimg.count=imgcount;
+  newimg.onclick=function() {
+    swapin(this.count)};
+  newimg.src = canvas.toDataURL("image/png");
+  div.appendChild(newimg);
+  lastcanvas = document.createElement("canvas");
+//  lastcanvas.setAttribute("id", "img"+imgcount);
+  lastcanvas.id="img"+imgcount;
+//  alert(lastcanvas.id);
+  lastcanvas.width = canvas.width;
+  lastcanvas.height = canvas.height;
+//  console.log(lastcanvas.width);
+  var ctx = lastcanvas.getContext('2d');
+  ctx.drawImage(canvas,0,0);
+  lastcanvas.style.display="none";
+  div.appendChild(lastcanvas);
+//  canvases.push(lastcanvas);
+  imgcount++;
+//  lastcanvas=canvas;
+//  document.getElementById("lastimage").src=imgs[prevurl];
+  prevurl=url;
+  var img = new Image();
+  img.crossOrigin = "Anonymous";
+   
+  //Set the src of this Image object.
+  
+  img.onload = function(){
+                // Update dimensions of the canvas with the dimensions of the image
+                canvas.width = this.width;
+                canvas.height = this.height;
+                
+                // Draw the image
+                context.drawImage(img, 0, 0);
+            };
+   img.src = url;
+   };
+   
+function swapin(id) {
+//  var can = canvases[id];
+//  alert("img"+id);
+// need to figure out the fall back if they come in late
+// I think an array of the urls, then if the canvas doesn't exit
+// just load the url
+
+// also need to make it so that either way the canvas changes
+// you get a new canvas. Possibly keep track if it came off the 
+// img div and then don't have to make a new canvas?
+
+// need to get pusher in here (make sure that pusher
+// is called, passing the id
+
+// need to change the img size to be thumbnails
+  var can = document.getElementById("canvas"+id);
+  console.log("canvas"+id);
+  canvas.width=can.width;
+  canvas.height=can.height;
+  context.clearRect(0,0,canvas.width, canvas.height);
+  context.drawImage(can,0,0);
+  }
+   
+function showLast() {
+  canvas.width=lastcanvas.width;
+  canvas.height=lastcanvas.height;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  context.drawImage(lastcanvas,0,0);
+   }
+  
+  
+  </script>
+  
+ <script>
+
+
+var fileSelect = document.getElementById("fileSelect"),
+  fileElem = document.getElementById("fileElem"),
+    urlSelect = document.getElementById("urlSelect");
+
+fileSelect.addEventListener("click", function(e) {
+  if (fileElem) {
+    fileElem.click();
+  }
+  e.preventDefault(); // prevent navigation to "#"
+}, false);
+
+
+
+// *********** Handle selected files ******************** //
+
+
+function saveFile(f) {
+    const file = f.files[0];
+    const fr = new FileReader();
+    fr.onload = function(e) {
+      const obj = {
+        filename: file.name,
+        mimeType: file.type,
+        bytes: [...new Int8Array(e.target.result)]
+      };
+      google.script.run.saveFile(obj);
+    };
+    fr.readAsArrayBuffer(file);
+  }
+  
+
+ 
   </script>
   </body>
 </html>
