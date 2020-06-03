@@ -1,23 +1,27 @@
 # synchronous-dashboard
-![Screenshot of dashboard](Screenshot%202020-04-11%20at%202.56.31%20PM.png)
-A dashboard that can be used in meetings to allow participants to indicate emotions, chat, and raise hands without using video. It's google apps script based and will only work in a full G-suite application. [See my blog post about it here](https://arundquist.wordpress.com/2020/04/08/synchronous-meeting-dashboard/)
+![Screenshot of dashboard](Screenshot%202020-06-02%20at%208.58.40%20PM.png)
+A dashboard that can be used in meetings to allow participants to indicate emotions, chat, and raise hands without using video. It also features an interactive whiteboard that can also be used to annotate images uploaded by the instructor. It's google apps script based and will only work in a full G-suite application. [See my blog post about it here](https://arundquist.wordpress.com/2020/04/08/synchronous-meeting-dashboard/)
 
-[A Loom video showing it in action](https://www.loom.com/share/a57af2b07dfc4d65a957762c760af158)
-
-[Loom vid with new features](https://www.loom.com/share/b94205e80b31461d86e4535101fc2ff0)
-* Instructors can now clear all emotions
-* Individual participants can have 1-on-1 chats with other participants
-* Instructor can launch "think-pair-share" which randomly pairs participants up for 1-on-1 chats
+[A loom video showing the features](https://www.loom.com/share/08587f10819a4f82b0a945542c3b9df0)
 
 ## features
 * Emotions
     * Buttons for participants like "Excited" or "Agree" or "Confused" will light up that participant's name in the displayed roster with a particular color.
 * Chat
     * A simple chat interface that is persistent. If someone has to reload or joins late they will see all the chat history
+    * Also a 1-to-1 chat feature where participants can chat with each other
+    * A "think-pair-share" feature where you can randomly put participants into pairs for chatting
 * Raise hands
     * There are two queues. One is for questions about the current topic and one is for new topics. 
     * Participants can raise, lower, and transfer their "hands." Transfer moves their hand to the other queue
     * Instructors can "call on" people
+* Whiteboard
+    * Both the instructor and the participants can draw in the whiteboard
+    * Works well with touch devices and various stylus options (tested with Wacam Bamboo tablet, Surface Pro, and a Note 10 Android phone with Samsung stylus)
+* Upload images
+    * Only instructors can upload images that get uploaded to a google drive folder that the instructor defines
+    * The google drive download link for the image is then sent to everyone via Pusher and they download it
+    * The instructor can switch among any images that have been uploaded (and the original whiteboard as well). The switching does not download new copies for the participants as they've already downloaded it and they all get saved locally.
 * Low bandwidth
     * While this needs to be paired with an audio webconference, this tool uses very little bandwidth. All interactions are low payload AJAX calls that lead to low bandwidth WebSocket events.
     
@@ -43,6 +47,7 @@ Note that the roadmap with future features is on the wiki.
 * Make a copy of the [Google Sheets template](https://docs.google.com/spreadsheets/d/1LkzJapJFeiI61kn92gD0otYyFZsRfUg0wAGea4jzBB8/edit?usp=sharing)
 * Open the script editor in google sheets (Tools -> Script editor)
 * Update the user email in "code.gs"
+* Update the google drive folder in "code.gs"
 * Update the "pusher" variable in "main.html" with the appropriate information from your pusher account
 * Update the "pvals" variable in "pusher.gs" with the appropriate information from your pusher account
 * Go to "Publish -> Deploy as web app" and make a new version, deciding who has access.
@@ -64,6 +69,8 @@ Then create a bound script (Tools -> script editor) and create these files:
 * code.gs: paste in the code in this repository called code.js (I call it .js here for good formatting)
 * pusher.gs: paste in the code called pusher.gs
 * main.html: paste in the code called main.html
+
+Note that the spreadsheet will then have a custom menu item that will clear out all the data in chats, present, lowered, raised hands, and transfers.
 
 Update your pusher info and your user email in the places with all caps.
 
