@@ -1,3 +1,26 @@
+var googleFolderId = "put the id to your google drive images folder here";
+var youremail = "your email address so that it recognizes you as the instructor";
+
+function test() {
+  addChat("", 1, "<b>sdjfldk</b>: me")
+  }
+
+function onOpen(e) {
+  SpreadsheetApp.getUi()
+      .createMenu('My Menu')
+      .addItem('clear data', 'clearData')
+      .addToUi();
+}
+
+function clearData() {
+  var ss=SpreadsheetApp.getActive();
+  var sheets=ss.getSheets();
+  var sheetdict={};
+  var sheetnames=sheets.forEach((s,i)=>sheetdict[s.getName()]=i);
+  var clearedsheets=["present","lowered","raised hands","transfers","chats"];
+  clearedsheets.forEach(name=>sheets[sheetdict[name]].clear());
+  }
+
 function doGet(e) {
   var proxy = e.parameter.email;
   if (proxy) {
@@ -5,7 +28,7 @@ function doGet(e) {
     } else {
       var user = Session.getActiveUser().getEmail();
       };
-  if (user == "YOUR EMAIL HERE") {
+  if (user == youremail) {
     var userType = "instructor";
     } else {
       var userType = "student";
@@ -109,8 +132,8 @@ function broadcast(id, button,color) {
   
 function addChat(chatid, id, text) {
   sendToPusher("chat", {"id":id, "text":text, "chatid":chatid});
-  if (chatid="") {
-    var user = Session.getActiveUser().getEmail();
+  if (chatid=="") {
+//    var user = Session.getActiveUser().getEmail();
     var sheet = SpreadsheetApp.getActive().getSheetByName("chats");
     sheet.appendRow([text]);
     };
@@ -164,7 +187,8 @@ function rosterList(data, presentdata, userType) {
     });
   if (userType=="instructor") {
       html += `<button type="button" onClick="google.script.run.clearEmotions()">Clear</button>
-               <button type="button" onClick="thinkPairShare()">Think-pair-share</button>`;
+               <button type="button" onClick="thinkPairShare()">Think-pair-share</button>
+               <button type="button" onClick="clearCanvas()">Clear Canvas</button>`;
       };
   html += "</div>";
   return html;
@@ -189,3 +213,23 @@ function thinkPairShareServer(sets) {
     sendToPusher("launchChat", {"chatters":s.map(n=>`${n}`), "chatid":rndid});
     });
   }
+  
+function sendLine(pts, user) {
+  sendToPusher("newline", {pts: pts, curuser:user});
+  }
+  
+function clearCanvas() {
+  sendToPusher("clearCanvas", {});
+  }
+  
+  
+function sendImage(url) {
+  sendToPusher("newImage", {url: url});
+  }
+  
+function saveFile(e) {
+  var blob = Utilities.newBlob(e.bytes, e.mimeType, e.filename);
+  var newfile=DriveApp.getFolderById(googleFolderId).createFile(blob);
+  sendToPusher("newImage", {url: newfile.getDownloadUrl()});
+//  return newfile.getDownloadUrl();
+}
